@@ -13,7 +13,7 @@ export async function load({ cookies }) {
       }
       return { user: auth ? auth.account : null };
     } catch (e) {
-      console.log(e);
+      console.error(e);
       cookies.delete("session");
       throw e;
     }
