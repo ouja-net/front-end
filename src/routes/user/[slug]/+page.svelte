@@ -2,6 +2,9 @@
   /** @type {import('./$types').PageData} */
   export let data;
 
+  import { env } from "$env/dynamic/public";
+  const API = env.PUBLIC_API_URL;
+
   function openSettings() {
     let info = document.getElementById("info");
     let edit = document.getElementById("edit");
@@ -29,11 +32,57 @@
     }
 
     if (isInfoHidden) {
-      document.getElementById("profile-description").value = user.about_me;
-      document.getElementById("profile-username").value = user.username;
+      document.getElementById("profile-description").value =
+        data.account.about_me;
+      document.getElementById("profile-username").value = data.account.username;
+    }
+  }
+
+  let new_user = {
+    username: data.user ? data.user.username : "",
+    about_me: data.user && data.user.about_me ? data.user.about_me : "",
+  };
+
+  function updateUser() {
+    if (data.user) {
+      let body = new URLSearchParams(new FormData());
+      body.append("username", new_user.username);
+      body.append("about_me", new_user.about_me);
+      fetch(API + "/account", {
+        method: "PATCH",
+        body,
+        headers: {
+          "x-session": data.user.session,
+        },
+      })
+        .then((r) => r.json())
+        .then((b) => {
+          let error = document.getElementById("error");
+          let error_container = document.getElementById("error-container");
+          error.innerText = "";
+          error_container.classList.add("hidden");
+          if (b.success) {
+            data.account.username = b.account.username;
+            data.account.about_me = b.account.about_me;
+            window.history.pushState(
+              [],
+              null,
+              `/user/${data.account.username}`
+            );
+            openSettings();
+          } else {
+            error.innerText = b.error;
+            error_container.classList.remove("hidden");
+          }
+        })
+        .catch((e) => console.error(e));
     }
   }
 </script>
+
+<svelte:head>
+  <title>OujaSkins | {data.account.username} | Profile</title>
+</svelte:head>
 
 <div class="grid grid-cols-1 min-[1250px]:grid-cols-3 gap-1">
   <div />
@@ -56,15 +105,14 @@
             {data.account.username}
           </h1>
           <div class="hidden" id="edit-name-container">
-            <form onsubmit="updateSettings(event)">
-              <input
-                type="text"
-                name="username"
-                id="profile-username"
-                value={data.account.username}
-                class="bg-gray-300 px-1 py-1 rounded"
-              />
-            </form>
+            <input
+              type="text"
+              name="username"
+              id="profile-username"
+              bind:value={new_user.username}
+              class="bg-gray-300 px-1 py-1 rounded"
+              maxlength="16"
+            />
           </div>
         </div>
       </div>
@@ -81,7 +129,7 @@
       </div>
       {#if data.user && data.user.id == data.account.id}
         <div class="hidden" id="edit">
-          <form onsubmit="updateSettings(event)">
+          <form on:submit|preventDefault={updateUser}>
             <input type="text" name="type" value="description" hidden />
             <div class="relative">
               <div
@@ -98,7 +146,9 @@
                   name="description"
                   id="profile-description"
                   placeholder="Description"
+                  bind:value={new_user.about_me}
                   class="bg-gray-200 rounded px-1 py-1 w-[380px]"
+                  maxlength="256"
                 />
               </div>
             </div>
@@ -162,7 +212,7 @@
               readonly
               maxlength="1500"
               style="width: 400px; height: 160px; white-space: pre-wrap; overflow-y: scroll;"
-              >Developer of OujaSkins. 😎</textarea
+              >{data.account.about_me}</textarea
             >
           </div>
         </div>
