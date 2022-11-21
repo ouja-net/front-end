@@ -27,7 +27,12 @@
     fetch(API + "/account/register", { method: "PUT", body })
       .then((r) => r.json())
       .then((b) => {
-        console.log(b);
+        if (b.success) {
+          window.location.assign("/login");
+        } else {
+          document.getElementById("error").innerText = b.error;
+          document.getElementById("error").classList.remove("hidden");
+        }
       })
       .catch((e) => console.error(e));
   }

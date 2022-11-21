@@ -19,6 +19,9 @@
         if (b.success) {
           setCookie("session", b.ID, 3);
           window.location.assign("/dashboard");
+        } else {
+          document.getElementById("error").innerText = b.error;
+          document.getElementById("error").classList.remove("hidden");
         }
       })
       .catch((e) => console.error(e));
@@ -38,6 +41,7 @@
 
 <div class="mt-[10px] bg-white rounded-md py-10 text-center">
   <form on:submit|preventDefault={handleLogin}>
+    <div class="hidden text-red-500" id="error" />
     <div>
       <label for="email"
         >Email <span class="text-red-500" title="Required">*</span></label
