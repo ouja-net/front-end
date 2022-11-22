@@ -1,29 +1,38 @@
 <script>
+  export let data;
+
   import { env } from "$env/dynamic/public";
   const API = env.PUBLIC_API_URL;
 
   let error = null;
+  let file_uploaded = false;
 
-  let data = {
+  let form_data = {
     file: null,
     description: "Describe your skin here!",
   };
 
   function handleSubmit() {
     let body = new FormData();
-    body.append("skin", data.file[0]);
-    body.append("description", data.description);
+    body.append("skin", form_data.file[0]);
+    body.append("title", form_data.title);
+    body.append("description", form_data.description);
 
     fetch(API + "/skins/upload", {
       method: "PUT",
       body,
+      headers: {
+        "x-session": data.user.session,
+      },
     })
       .then((r) => r.json())
       .then((b) => {
         if (!b.success) {
+          file_uploaded = false;
           error = b.error;
         } else {
           error = null;
+          file_uploaded = true;
         }
       })
       .catch((e) => console.error(e));
@@ -37,6 +46,11 @@
     {#if error}
       <h2 id="error" class="text-red-500 font-semibold text-xl">{error}</h2>
     {/if}
+    {#if file_uploaded}
+      <h2 id="uploaded" class="text-green-500 font-semibold text-xl">
+        File was uploaded!
+      </h2>
+    {/if}
   </div>
   <div class="mb-[5px]" />
   <form on:submit|preventDefault={handleSubmit}>
@@ -45,7 +59,7 @@
         type="file"
         name="image"
         id="skin_file"
-        bind:files={data.file}
+        bind:files={form_data.file}
         class="bg-gray-200 px-1 py-1 rounded"
       />
     </div>
@@ -53,6 +67,7 @@
       <input
         type="text"
         name="title"
+        bind:value={form_data.title}
         class="px-1 py-1 rounded bg-gray-200"
         placeholder="Title"
       />
@@ -62,7 +77,7 @@
         name="description"
         cols="30"
         rows="10"
-        bind:value={data.description}
+        bind:value={form_data.description}
         class="px-1 py-1 rounded bg-gray-200 h-[160px]"
       />
     </div>
