@@ -3,6 +3,7 @@
   export let data;
 
   import { env } from "$env/dynamic/public";
+  import { marked } from "marked";
   const API = env.PUBLIC_API_URL;
 
   function openSettings() {
@@ -205,15 +206,13 @@
             <hr class="border-gray-900" />
           </div>
           <div class="absolute">
-            <textarea
+            <div
               class="bg-white rounded-md py-2 px-2"
               id="about_me"
-              disabled
-              readonly
-              maxlength="1500"
               style="width: 400px; height: 160px; white-space: pre-wrap; overflow-y: scroll;"
-              >{data.account.about_me}</textarea
             >
+              {@html marked(data.account.about_me)}
+            </div>
           </div>
         </div>
       </div>
