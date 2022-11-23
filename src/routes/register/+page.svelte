@@ -26,7 +26,11 @@
         body.append(key, value);
       }
     }
-    fetch(API + "/account/register", { method: "PUT", body })
+    fetch(API + "/account/register", {
+      method: "PUT",
+      body,
+      headers: { "x-csrf": data.csrf },
+    })
       .then((r) => r.json())
       .then((b) => {
         if (b.success) {

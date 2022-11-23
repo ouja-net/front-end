@@ -87,7 +87,8 @@
           <img
             on:click={toggleUserMenu}
             class="rounded-full border-4 hover:border-[#B8B8FF] hover:transition hover:duration-150 hover:cursor-pointer w-[48px] h-[48px]"
-            src="https://www.gravatar.com/avatar/2b057932c8fd4e1cf6654d84c6070b37"
+            src={data.user.profile_pic ??
+              "https://assets.livzmc.net/skin/head/steve.png"}
             alt=""
           />
           <div class="float-right relative">

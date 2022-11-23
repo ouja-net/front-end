@@ -80,6 +80,23 @@
         .catch((e) => console.error(e));
     }
   }
+
+  function serialize(text) {
+    let to_escape = /[&<>"']/g;
+    let escapes = {
+      "<": "&lt;",
+      "&": "&amp;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    };
+    function escapeChar(match) {
+      return escapes[match];
+    }
+    return text
+      .replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
+      .replace(to_escape, escapeChar);
+  }
 </script>
 
 <svelte:head>
@@ -87,7 +104,6 @@
 </svelte:head>
 
 <div class="grid grid-cols-1 min-[1250px]:grid-cols-3 gap-1">
-  <div />
   <div class="flex justify-center items-center">
     <div class="mt-[80px] bg-white rounded-md py-4 w-[25rem] h-[10rem]">
       <div class="relative">
@@ -118,15 +134,9 @@
           </div>
         </div>
       </div>
-      <div id="info">
-        <div class="relative">
-          <div class="absolute top-[35px] left-[15px]">0 Followers</div>
-        </div>
-        <div class="relative">
-          <div class="absolute top-[55px] left-[15px]">0 Likes</div>
-        </div>
-        <div class="relative">
-          <div class="absolute top-[75px] left-[15px]">0 Skins</div>
+      <div class="relative">
+        <div class="w-full absolute top-[25px]">
+          <hr />
         </div>
       </div>
       {#if data.user && data.user.id == data.account.id}
@@ -143,7 +153,7 @@
               </div>
             </div>
             <div class="relative">
-              <div class="absolute top-[30px] left-[15px]">
+              <div class="mt-[30px] ml-[15px] top-[30px] left-[15px]">
                 <textarea
                   name="description"
                   id="profile-description"
@@ -154,35 +164,27 @@
                 />
               </div>
             </div>
-            <div class="relative">
-              <div class="absolute top-[109px] left-[15px]">
+            <div class="flex ml-[15px] mt-[2.5px]">
+              <div>
                 <button
                   type="submit"
                   class="bg-[#0DAB76] px-1 py-1 rounded text-white font-semibold hover:underline"
                   >Save</button
                 >
               </div>
+              <div class="ml-[5px]" />
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div on:click={openSettings} class="top-[109px] left-[60px]">
+                <button
+                  type="button"
+                  class="bg-[#E83151] px-1 py-1 rounded text-white font-semibold hover:underline"
+                  >Cancel</button
+                >
+              </div>
             </div>
           </form>
-          <div class="relative">
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-              on:click={openSettings}
-              class="absolute top-[109px] left-[60px]"
-            >
-              <button
-                class="bg-[#E83151] px-1 py-1 rounded text-white font-semibold hover:underline"
-                >Cancel</button
-              >
-            </div>
-          </div>
         </div>
       {/if}
-      <div class="relative">
-        <div class="w-full absolute top-[25px]">
-          <hr />
-        </div>
-      </div>
       {#if data.user && data.user.id == data.account.id}
         <div id="settings-button-container" class="relative">
           <div
@@ -196,6 +198,17 @@
           </div>
         </div>
       {/if}
+      <div id="info" class="ml-[15px] mt-[30px]">
+        <div class="flex items-center">
+          <p>0 Followers</p>
+        </div>
+        <div class="flex items-center">
+          <p>0 Likes</p>
+        </div>
+        <div class="flex items-center">
+          <p>0 Skins</p>
+        </div>
+      </div>
     </div>
   </div>
   {#if data.account.about_me}
@@ -207,13 +220,12 @@
             <hr class="border-gray-900" />
           </div>
           <div class="absolute">
-            <div
-              class="bg-white rounded-md py-2 px-2"
+            <article
+              class="bg-white rounded-md py-2 px-2 w-[400px] h-[160px] overflow-y-scroll prose"
               id="about_me"
-              style="width: 400px; height: 160px; white-space: pre-wrap; overflow-y: scroll;"
             >
-              {@html marked(data.account.about_me)}
-            </div>
+              {@html marked(serialize(data.account.about_me))}
+            </article>
           </div>
         </div>
       </div>
