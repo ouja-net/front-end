@@ -1,21 +1,35 @@
-<script lang="ts">
+<script>
   import "../app.css";
 
   export let data;
 
-  function toggleNavMobile(): any {
+  function toggleNavMobile() {
     let doc = document.getElementById("nav-mobile");
     if (!doc) return;
     let isHidden = doc.classList.contains("hidden");
     isHidden ? doc.classList.remove("hidden") : doc.classList.add("hidden");
   }
 
-  function toggleUserMenu(): any {
-    let doc = document.getElementById("user-menu-other");
-    if (!doc) return;
-    let isHidden = doc.classList.contains("hidden");
-    isHidden ? doc.classList.remove("hidden") : doc.classList.add("hidden");
+  function clickOutside(element, callbackFunction) {
+    function onClick(event) {
+      if (!element.contains(event.target)) {
+        callbackFunction();
+      }
+    }
+
+    document.body.addEventListener("click", onClick);
+
+    return {
+      update(newCallbackFunction) {
+        callbackFunction = newCallbackFunction;
+      },
+      destroy() {
+        document.body.removeEventListener("click", onClick);
+      },
+    };
   }
+
+  let userMenu = false;
 </script>
 
 <div class="mt-[10px]">
@@ -81,47 +95,59 @@
           <a href="/recent" class="hover:underline">Recent</a>
         </li>
       </ul>
-      <div class="hidden lg:flex z-[1000]">
+      <div class="lg:flex z-[1000]">
         {#if data.user}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <img
-            on:click={toggleUserMenu}
+            on:click={() => {
+              userMenu = !userMenu;
+            }}
+            use:clickOutside={() => {
+              userMenu = false;
+            }}
             class="rounded-full border-4 hover:border-[#B8B8FF] hover:transition hover:duration-150 hover:cursor-pointer w-[48px] h-[48px]"
             src={data.user.profile_pic ??
               "https://assets.livzmc.net/skin/head/steve.png"}
             alt=""
           />
-          <div class="float-right relative">
-            <div
-              class="hidden absolute right-[-10px] top-[50px] bg-white rounded w-[200px] px-4 py-4 border-2 border-gray-200 "
-              id="user-menu-other"
-            >
-              <div>
-                <a
-                  class="hover:underline font-semibold"
-                  href="/user/{data.user.username}">@{data.user.username}</a
-                >
-              </div>
-              <hr class="mt-[5px] mb-[5px]" />
-              <div>
-                <a class="hover:underline" href="/upload">Upload a skin</a>
-              </div>
-              <hr class="mt-[5px] mb-[5px]" />
-              <div>
-                <a class="hover:underline" href="/dashboard">Dashboard</a>
-                <br />
-                <a class="hover:underline" href="/dashboard/notifications"
-                  >Notifications</a
-                >
-                <br />
-                <a class="hover:underline" href="/following">Following</a>
-              </div>
-              <hr class="mt-[5px] mb-[5px]" />
-              <div>
-                <a class="hover:underline" href="/logout">Logout</a>
+          {#if userMenu}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div class="float-right relative">
+              <div
+                class="absolute right-[-10px] top-[50px] bg-white rounded w-[200px] px-4 py-4 border-2 border-gray-200 "
+                id="user-menu-other"
+              >
+                <div>
+                  <a
+                    class="hover:underline font-semibold"
+                    href="/user/{data.user.username}">@{data.user.username}</a
+                  >
+                </div>
+                <hr class="mt-[5px] mb-[5px]" />
+                <div>
+                  <a class="hover:underline" href="/upload">Upload a skin</a>
+                </div>
+                <hr class="mt-[5px] mb-[5px]" />
+                <div>
+                  <a class="hover:underline" href="/dashboard">Dashboard</a>
+                  <br />
+                  <a class="hover:underline" href="/dashboard/notifications"
+                    >Notifications</a
+                  >
+                  <br />
+                  <a class="hover:underline" href="/following">Following</a>
+                </div>
+                <hr class="mt-[5px] mb-[5px]" />
+                <div>
+                  <a
+                    class="hover:underline"
+                    href="/logout"
+                    on:click={(data.user = null)}>Logout</a
+                  >
+                </div>
               </div>
             </div>
-          </div>
+          {/if}
         {:else}
           <a
             href="/login"
