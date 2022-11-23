@@ -1,4 +1,6 @@
 <script>
+  export let data;
+
   import { env } from "$env/dynamic/public";
   const API = env.PUBLIC_API_URL;
 
@@ -13,7 +15,11 @@
     body.append("email", details.email);
     body.append("password", details.password);
     body.append("remember_me", details.remember_me);
-    fetch(API + "/account/login", { method: "POST", body })
+    fetch(API + "/account/login", {
+      method: "POST",
+      body,
+      headers: { "x-csrf": data.csrf },
+    })
       .then((r) => r.json())
       .then((b) => {
         if (b.success) {

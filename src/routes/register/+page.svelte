@@ -1,4 +1,6 @@
 <script>
+  export let data;
+
   import { env } from "$env/dynamic/public";
   const API = env.PUBLIC_API_URL;
 
@@ -42,6 +44,7 @@
   <form on:submit|preventDefault={handleRegister}>
     <div class="hidden text-red-500" id="error" />
     <div>
+      <input type="text" name="csrf" hidden value={data.csrf} />
       <label for="name"
         >Username <span class="text-red-500" title="Required">*</span></label
       >

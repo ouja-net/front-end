@@ -54,6 +54,7 @@
         body,
         headers: {
           "x-session": data.user.session,
+          "x-csrf": data.csrf,
         },
       })
         .then((r) => r.json())
