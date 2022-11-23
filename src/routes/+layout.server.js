@@ -9,7 +9,6 @@ import { SECRET_KEY } from '$env/static/private'
 export async function load({ cookies }) {
   let csrf = new MagicCrypt(SECRET_KEY, 256).encrypt(Math.random().toString(28).substring(4))
 
-
   let cookie = cookies.get("session");
   if (cookie) {
     try {
